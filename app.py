@@ -32,6 +32,37 @@ logger = logging.getLogger(__name__)
 
 
 # ==========================================================
+# 🔹 HEALTH CHECK ENDPOINT
+# ==========================================================
+@app.route("/health", methods=["GET"])
+def health_check():
+    # 1️⃣ Cek embedding model
+    try:
+        _ = model.encode("health check").tolist()
+        model_status = True
+    except Exception as e:
+        model_status = False
+
+    # 2️⃣ Cek koneksi Qdrant
+    try:
+        qdrant.get_collections()
+        qdrant_status = True
+    except Exception as e:
+        qdrant_status = False
+
+    overall_status = model_status and qdrant_status
+
+    return jsonify({
+        "status": "healthy" if overall_status else "unhealthy",
+        "components": {
+            "flask": True,
+            "embedding_model": model_status,
+            "qdrant": qdrant_status
+        }
+    }), 200 if overall_status else 500
+
+
+# ==========================================================
 # 🔹 ERROR RESPONSE (Utility)
 # ==========================================================
 def error_response(t, msg, detail=None, code=500):
