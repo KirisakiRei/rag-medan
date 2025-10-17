@@ -15,6 +15,9 @@ from core.filtering import ai_pre_filter, ai_check_relevance
 
 app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return " Server Flask App is running!"
 # ==========================================================
 # 🔹 LOAD MODEL DAN CLIENT
 # ==========================================================
